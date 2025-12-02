@@ -1,0 +1,48 @@
+{
+  "version": "1.0.0",
+  "description": "Standardized message format for Cardano community signature challenges",
+  "structure": {
+    "type": "object",
+    "properties": {
+      "challenge_id": {
+        "type": "string",
+        "description": "Unique challenge identifier (UUID v4)"
+      },
+      "community_id": {
+        "type": "string",
+        "description": "Community identifier"
+      },
+      "nonce": {
+        "type": "string",
+        "description": "Random nonce to prevent replay attacks"
+      },
+      "timestamp": {
+        "type": "integer",
+        "description": "Unix timestamp when challenge was created"
+      },
+      "action": {
+        "type": "string",
+        "enum": ["verify_membership", "authorize_action", "sign_document"],
+        "description": "Action being verified"
+      },
+      "message": {
+        "type": "string",
+        "description": "Human-readable message to sign"
+      },
+      "expiry": {
+        "type": "integer",
+        "description": "Unix timestamp when challenge expires (optional, default 3600s)"
+      }
+    },
+    "required": ["challenge_id", "community_id", "nonce", "timestamp", "action", "message"]
+  },
+  "example": {
+    "challenge_id": "550e8400-e29b-41d4-a716-446655440000",
+    "community_id": "cardano-devs-ph",
+    "nonce": "abc123def456",
+    "timestamp": 1733043600,
+    "action": "verify_membership",
+    "message": "I hereby verify my membership in Cardano Developers Philippines",
+    "expiry": 1733047200
+  }
+}

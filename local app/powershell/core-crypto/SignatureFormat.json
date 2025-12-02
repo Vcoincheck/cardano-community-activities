@@ -1,0 +1,53 @@
+{
+  "version": "1.0.0",
+  "description": "Standardized signature output format for Cardano signatures",
+  "structure": {
+    "type": "object",
+    "properties": {
+      "signature_id": {
+        "type": "string",
+        "description": "Unique signature identifier (UUID v4)"
+      },
+      "challenge_id": {
+        "type": "string",
+        "description": "Reference to challenge being signed"
+      },
+      "wallet_address": {
+        "type": "string",
+        "description": "Cardano address of signer"
+      },
+      "public_key": {
+        "type": "string",
+        "description": "Ed25519 public key (hex-encoded)"
+      },
+      "signature": {
+        "type": "string",
+        "description": "Actual signature bytes (hex-encoded)"
+      },
+      "timestamp": {
+        "type": "integer",
+        "description": "Unix timestamp when signature was created"
+      },
+      "message_hash": {
+        "type": "string",
+        "description": "Hash of message signed (for verification reference)"
+      },
+      "signing_method": {
+        "type": "string",
+        "enum": ["cip30", "cli", "hardware_wallet"],
+        "description": "Method used to create signature"
+      }
+    },
+    "required": ["signature_id", "challenge_id", "wallet_address", "public_key", "signature", "timestamp"]
+  },
+  "example": {
+    "signature_id": "660e8400-e29b-41d4-a716-446655440111",
+    "challenge_id": "550e8400-e29b-41d4-a716-446655440000",
+    "wallet_address": "addr1qy2z5r8v9w0x1y2z3a4b5c6d7e8f9g0h1i2j3k4l5m6n7o8p9",
+    "public_key": "a0a1a2a3a4a5a6a7a8a9b0b1b2b3b4b5b6b7b8b9c0c1c2c3",
+    "signature": "d0d1d2d3d4d5d6d7d8d9e0e1e2e3e4e5e6e7e8e9f0f1f2f3f4",
+    "timestamp": 1733043700,
+    "message_hash": "3a4b5c6d7e8f9g0h1i2j3k4l5m6n7o8p",
+    "signing_method": "cip30"
+  }
+}

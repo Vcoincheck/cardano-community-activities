@@ -1,0 +1,42 @@
+# .NET build artifacts
+bin/
+obj/
+*.user
+*.suo
+
+# Visual Studio
+.vs/
+.vscode/
+*.sln
+
+# Package artifacts
+*.nupkg
+*.snupkg
+packages/
+
+# IDE specific
+.idea/
+*.swp
+*.swo
+*~
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Build outputs
+Debug/
+Release/
+x64/
+x86/
+ARM/
+ARM64/
+
+# Application specific
+Data/
+Reports/
+Logs/
+*.log
+
+# Node modules (if applicable)
+node_modules/

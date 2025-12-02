@@ -1,0 +1,10 @@
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.sln.iml
+packages/
+node_modules/
+dist/
+.DS_Store

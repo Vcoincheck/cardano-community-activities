@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
+        <TargetPlatformMinVersion>10.0.22621.0</TargetPlatformMinVersion>
+        <RootNamespace>CardanoLauncher</RootNamespace>
+        <AssemblyName>CardanoLauncher</AssemblyName>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <FileVersion>1.0.0.0</FileVersion>
+        <ProductVersion>1.0.0</ProductVersion>
+        <Authors>Cardano Community</Authors>
+        <Product>Cardano Community Suite Launcher</Product>
+        <Description>Main launcher and entry point for Cardano Community Suite applications</Description>
+        <UseWinUI>true</UseWinUI>
+        <EnablePreviewFeatures>false</EnablePreviewFeatures>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <!-- Windows App SDK Reference -->
+    <ItemGroup>
+        <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.4.240108002" />
+        <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.756" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    </ItemGroup>
+
+    <!-- WinUI 3 Support -->
+    <ItemGroup>
+        <Manifest Include="$(ApplicationManifest)" />
+    </ItemGroup>
+
+</Project>

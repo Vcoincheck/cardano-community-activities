@@ -1,0 +1,20 @@
+# Large binaries
+*.exe
+*.dll
+*.so
+
+# Directories with large files
+cardano-cli-win64/
+keys/
+exports/
+reports/
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.bak
+
+# OS files
+.DS_Store
+Thumbs.db

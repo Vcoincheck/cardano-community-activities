@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
+        <TargetPlatformVersion>10.0.22621.0</TargetPlatformVersion>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <PublishProfile>win-x64</PublishProfile>
+        <UseWindowsAppSDK>true</UseWindowsAppSDK>
+        <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <RootNamespace>CommunityAdmin</RootNamespace>
+        <AssemblyName>CommunityAdmin</AssemblyName>
+        <Description>Cardano Community Admin Dashboard - WinUI 3</Description>
+        <Version>1.0.0</Version>
+        <AppVersion>1.0.0.0</AppVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Windows App SDK for WinUI 3 -->
+        <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.4.240108002" />
+        
+        <!-- MVVM & Dependency Injection -->
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+        
+        <!-- UI & Graphics -->
+        <PackageReference Include="CommunityToolkit.WinUI" Version="8.0.240109" />
+        
+        <!-- JSON & Serialization -->
+        <PackageReference Include="System.Text.Json" Version="8.0.0" />
+        <PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
+        
+        <!-- Async/Utilities -->
+        <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+        
+        <!-- Optional: Cryptography (uncomment when implementing services) -->
+        <!-- <PackageReference Include="Chaos.NaCl" Version="2.2.1" /> -->
+        <!-- <PackageReference Include="NBitcoin" Version="7.8.12" /> -->
+        <!-- <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" /> -->
+    </ItemGroup>
+
+</Project>
