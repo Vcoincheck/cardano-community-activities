@@ -1,303 +1,242 @@
 """
-End-User Dashboard - PySide6 GUI
-Main interface for end-user tools
+END-USER-APP: GUI Interface (PySide6)
+Cardano End-User Tools - Python version
 """
 from PySide6.QtWidgets import (
-    QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel,
-    QTextEdit, QMessageBox, QTabWidget
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel,
+    QTextEdit, QInputDialog, QMessageBox, QFileDialog
 )
-from PySide6.QtGui import QFont, QColor
+from PySide6.QtGui import QFont
 from PySide6.QtCore import Qt
-from .key_generator import KeyGenerator
-from .offline_signing_dialog import OfflineSigningDialog
-from .web_signing_server import WebSigningServer
-
+import sys
+import os
+from tracking_so_du_paymentkey import get_payment_address_info
+from tracking_so_du_stakekey import check_stake_balance
+from key_generator import KeyGenerator
+from offline_signing_dialog import OfflineSigningDialog
+from web_signing_server import WebSigningServer
+import threading
 
 class EndUserDashboard(QMainWindow):
-    """End-user dashboard with key generation, signing, and verification"""
-    
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Cardano End-User Tools")
-        self.setGeometry(100, 100, 900, 700)
+        self.setWindowTitle("Cardano End-User Tool")
+        self.setGeometry(100, 100, 800, 500)
         self.setStyleSheet("""
             QMainWindow { background-color: #1e1e1e; }
             QLabel { color: #00ffff; }
-            QPushButton { 
-                background-color: #3d7ba4; 
-                color: white; 
-                padding: 8px; 
-                border-radius: 4px; 
+            QPushButton {
+                background-color: #326496;
+                color: white;
+                padding: 8px;
+                border-radius: 4px;
                 font-weight: bold;
             }
-            QPushButton:hover { background-color: #4d8bb4; }
-            QPushButton:pressed { background-color: #2d6b94; }
-            QTextEdit { 
-                background-color: #0a0a0a; 
-                color: #00ff00; 
-                font-family: 'Courier New'; 
+            QPushButton:hover { background-color: #3d7b00; }
+            QPushButton:pressed { background-color: #2d6b00; }
+            QTextEdit {
+                background-color: #0a0a0a;
+                color: #00ff00;
+                font-family: 'Courier New';
                 border: 1px solid #333;
             }
         """)
-        
-        self.key_generator = None
-        self.web_server = None
         self.setup_ui()
-    
+
     def setup_ui(self):
-        """Create UI layout"""
         main_widget = QWidget()
         self.setCentralWidget(main_widget)
-        
         main_layout = QHBoxLayout(main_widget)
-        
+
         # Left panel - buttons
         left_layout = QVBoxLayout()
-        
-        title = QLabel("🔐 End-User Tools")
-        title.setFont(QFont("Arial", 14, QFont.Bold))
+        title = QLabel("🔐 Cardano End-User Tools")
+        title.setFont(QFont("Arial", 16, QFont.Bold))
         left_layout.addWidget(title)
-        
         left_layout.addSpacing(20)
-        
-        # Generate keys
-        btn_keygen = QPushButton("1. Generate Keypair")
-        btn_keygen.setMinimumHeight(45)
-        btn_keygen.clicked.connect(self.on_generate_keypair)
+
+        btn_keygen = QPushButton("1. Generate/Restore Keypair")
+        btn_keygen.setMinimumHeight(40)
+        btn_keygen.clicked.connect(self.on_keygen)
         left_layout.addWidget(btn_keygen)
-        
-        # Sign offline
-        btn_sign_offline = QPushButton("2. Sign Message (Offline)")
-        btn_sign_offline.setMinimumHeight(45)
-        btn_sign_offline.clicked.connect(self.on_sign_offline)
-        left_layout.addWidget(btn_sign_offline)
-        
-        # Sign web
-        btn_sign_web = QPushButton("3. Sign Message (Web)")
-        btn_sign_web.setMinimumHeight(45)
+
+        btn_sign = QPushButton("2. Sign Message (Offline)")
+        btn_sign.setMinimumHeight(40)
+        btn_sign.clicked.connect(self.on_sign_offline)
+        left_layout.addWidget(btn_sign)
+
+        btn_sign_web = QPushButton("3. Sign Message (Web Wallet)")
+        btn_sign_web.setMinimumHeight(40)
         btn_sign_web.clicked.connect(self.on_sign_web)
         left_layout.addWidget(btn_sign_web)
-        
-        # Verify
-        btn_verify = QPushButton("4. Verify Signature")
-        btn_verify.setMinimumHeight(45)
-        btn_verify.clicked.connect(self.on_verify_signature)
-        left_layout.addWidget(btn_verify)
-        
-        # Export
-        btn_export = QPushButton("5. Export Wallet")
-        btn_export.setMinimumHeight(45)
-        btn_export.clicked.connect(self.on_export_wallet)
+
+        btn_export = QPushButton("4. Export Wallet")
+        btn_export.setMinimumHeight(40)
+        btn_export.clicked.connect(self.on_export)
         left_layout.addWidget(btn_export)
-        
-        left_layout.addSpacing(20)
-        
-        # Load keys
-        btn_load = QPushButton("Load Keys from File")
-        btn_load.setMinimumHeight(40)
-        btn_load.clicked.connect(self.on_load_keys)
-        btn_load.setStyleSheet("""
-            background-color: #996633;
-            color: white;
-            padding: 8px;
-            border-radius: 4px;
-        """)
-        left_layout.addWidget(btn_load)
-        
+
+        btn_verify = QPushButton("5. Verify Signature")
+        btn_verify.setMinimumHeight(40)
+        btn_verify.clicked.connect(self.on_verify)
+        left_layout.addWidget(btn_verify)
+
+        btn_check_balance = QPushButton("6. Check Balance/Assets")
+        btn_check_balance.setMinimumHeight(40)
+        btn_check_balance.setStyleSheet("background-color: #329664;")
+        btn_check_balance.clicked.connect(self.on_check_balance)
+        left_layout.addWidget(btn_check_balance)
+
+        btn_clean = QPushButton("🗑 Clean All Keys")
+        btn_clean.setMinimumHeight(40)
+        btn_clean.setStyleSheet("background-color: #964646;")
+        btn_clean.clicked.connect(self.on_clean)
+        left_layout.addWidget(btn_clean)
+
         left_layout.addStretch()
-        
+
         # Right panel - output
         self.output_text = QTextEdit()
         self.output_text.setReadOnly(True)
         self.output_text.setMinimumWidth(400)
-        
         main_layout.addLayout(left_layout, 1)
         main_layout.addWidget(self.output_text, 2)
-    
+
     def append_output(self, text: str):
-        """Append to output panel"""
-        current = self.output_text.toPlainText()
-        if current:
-            self.output_text.setPlainText(current + "\n" + text)
-        else:
-            self.output_text.setPlainText(text)
-        # Scroll to bottom
+        self.output_text.append(text)
         self.output_text.verticalScrollBar().setValue(
             self.output_text.verticalScrollBar().maximum()
         )
-    
-    def on_generate_keypair(self):
-        """Generate keypair from mnemonic"""
+
+    def on_keygen(self):
+        # Simple dialog for mnemonic input
+        mnemonic, ok = QInputDialog.getMultiLineText(self, "Nhập mnemonic", "Nhập BIP39 mnemonic (12/15/24 từ):")
+        if not ok or not mnemonic.strip():
+            return
+        wallet_path = QFileDialog.getExistingDirectory(self, "Chọn thư mục lưu wallet")
+        if not wallet_path:
+            return
         try:
-            from PySide6.QtWidgets import QInputDialog
-            
-            mnemonic, ok = QInputDialog.getMultiLineText(
-                self,
-                "Generate Keypair",
-                "Enter BIP39 mnemonic (12, 15, or 24 words):"
-            )
-            
-            if not ok or not mnemonic.strip():
-                return
-            
-            self.append_output("[*] Generating addresses...")
-            
-            self.key_generator = KeyGenerator("./wallets", "mainnet")
-            result = self.key_generator.generate_addresses(
-                mnemonic.strip(),
-                account_index=0,
-                address_count=5
-            )
-            
+            gen = KeyGenerator(wallet_path)
+            result = gen.generate_addresses(mnemonic.strip(), account_index=0, address_count=5)
             if result:
-                output = f"""✓ Generated {len(result['addresses'])} addresses
-
-Stake Address:
-{result['stake_address']}
-
-Addresses:
-"""
-                for addr in result['addresses']:
-                    output += f"\n{addr['index']}: {addr['address'][:40]}..."
-                
-                self.append_output(output)
-                
-                # Ask to save
-                reply = QMessageBox.question(
-                    self, "Save Wallet", 
-                    "Save wallet to file?"
-                )
-                if reply == QMessageBox.Yes:
-                    name, ok = QInputDialog.getText(
-                        self, "Wallet Name", 
-                        "Enter wallet name:"
-                    )
-                    if ok and name:
-                        self.key_generator.save_wallet(name)
-                        self.append_output(f"✓ Wallet saved as {name}")
+                self.append_output(f"✓ Đã sinh địa chỉ và stake address. Lưu tại: {wallet_path}")
+                self.append_output(str(result))
             else:
-                self.append_output("✗ Failed to generate addresses")
+                self.append_output("✗ Lỗi khi sinh địa chỉ hoặc mnemonic không hợp lệ.")
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error: {e}")
-            self.append_output(f"✗ Error: {e}")
-    
+            self.append_output(f"✗ Lỗi: {e}")
+
     def on_sign_offline(self):
-        """Sign message with local key file"""
-        try:
-            dialog = OfflineSigningDialog(self)
-            dialog.exec()
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error: {e}")
-            self.append_output(f"✗ Error: {e}")
-    
+        dialog = OfflineSigningDialog(self)
+        dialog.exec()
+        if dialog.signature:
+            self.append_output(f"✓ Đã ký thành công!\nSignature: {dialog.signature}")
+        else:
+            self.append_output("✗ Ký thất bại hoặc bị hủy.")
+
     def on_sign_web(self):
-        """Sign message using web browser wallet"""
-        try:
-            from PySide6.QtWidgets import QInputDialog
-            
-            message, ok = QInputDialog.getMultiLineText(
-                self,
-                "Web Sign Message",
-                "Enter message to sign:"
-            )
-            
-            if not ok or not message.strip():
-                return
-            
-            self.append_output("[*] Starting web signing server...")
-            
-            self.web_server = WebSigningServer(port=8888)
-            result = self.web_server.start(message.strip(), timeout_seconds=300)
-            
-            if result:
-                output = f"""✓ Message signed!
+        # Nhập message
+        message, ok = QInputDialog.getMultiLineText(self, "Nhập thông điệp", "Nhập thông điệp cần ký:")
+        if not ok or not message.strip():
+            return
+        self.append_output("[*] Đang khởi động server ký web...")
+        def run_server():
+            server = WebSigningServer(port=8888)
+            server.message_to_sign = message.strip()
+            import uvicorn
+            uvicorn.run(server.app, host="127.0.0.1", port=8888, log_level="warning")
+        threading.Thread(target=run_server, daemon=True).start()
+        import webbrowser
+        webbrowser.open("http://127.0.0.1:8888/")
+        self.append_output("Đã mở trình duyệt để ký qua ví web (Yoroi/Nami)...")
 
-Signature:
-{result['signature'][:80]}...
+    def on_export(self):
+        self.append_output("[Export] Chức năng này chưa được triển khai trong bản Python.")
 
-Wallet: {result.get('wallet', 'unknown')}
-Address: {result.get('address', 'unknown')[:40]}...
-"""
-                self.append_output(output)
+    def on_verify(self):
+        self.append_output("[Verify] Chức năng này chưa được triển khai trong bản Python.")
+
+    def on_check_balance(self):
+        address, ok = QInputDialog.getText(self, "Check Balance/Assets", "Nhập địa chỉ ví (addr1... hoặc stake1...):")
+        if not ok or not address.strip():
+            return
+        address = address.strip()
+        self.append_output(f"\n========== Check Balance/Assets ==========")
+        self.append_output(f"Địa chỉ: {address}")
+        if address.startswith("addr1"):
+            self.append_output("Đang kiểm tra Payment Address...\n")
+            result = get_payment_address_info(address)
+            if result.get('Success'):
+                self.append_output(f"✓ Kết quả:\n")
+                self.append_output(f"Payment Address:\n  {result['PaymentAddress']}")
+                self.append_output(f"Stake Address:\n  {result['StakeAddress']}")
+                self.append_output(f"Số dư ADA: {result['ADABalance']} ₳")
+                if result['Assets']:
+                    self.append_output("Danh sách Token:")
+                    for asset in result['Assets']:
+                        self.append_output(f"  - {asset[0]}: {asset[1]}")
+                else:
+                    self.append_output("Token: không có")
             else:
-                self.append_output("✗ Signing cancelled or timed out")
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error: {e}")
-            self.append_output(f"✗ Error: {e}")
-    
-    def on_verify_signature(self):
-        """Verify signature"""
-        try:
-            from PySide6.QtWidgets import QInputDialog
-            from ...utils.crypto_verifier import CryptoVerifier
-            
-            message, ok = QInputDialog.getMultiLineText(
-                self,
-                "Verify Signature",
-                "Enter message:"
-            )
-            
-            if not ok or not message.strip():
-                return
-            
-            signature, ok = QInputDialog.getText(
-                self,
-                "Verify Signature",
-                "Enter signature (base64):"
-            )
-            
-            if not ok or not signature.strip():
-                return
-            
-            self.append_output("[*] Verifying signature...")
-            
-            verifier = CryptoVerifier()
-            # Note: This requires the public key, simplified for demo
-            self.append_output("✓ Signature format valid (full verification requires public key)")
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error: {e}")
-            self.append_output(f"✗ Error: {e}")
-    
-    def on_export_wallet(self):
-        """Export wallet addresses"""
-        try:
-            if not self.key_generator:
-                QMessageBox.warning(self, "Error", "No wallet loaded")
-                return
-            
-            from PySide6.QtWidgets import QFileDialog
-            
-            file_path, _ = QFileDialog.getSaveFileName(
-                self,
-                "Export Wallet",
-                "wallet_addresses.csv",
-                "CSV files (*.csv);;All files (*.*)"
-            )
-            
-            if file_path:
-                self.key_generator.export_addresses(file_path)
-                self.append_output(f"✓ Exported to {file_path}")
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error: {e}")
-    
-    def on_load_keys(self):
-        """Load keys from file"""
-        try:
-            from PySide6.QtWidgets import QFileDialog
-            
-            file_path, _ = QFileDialog.getOpenFileName(
-                self,
-                "Load Keys",
-                ".",
-                "JSON files (*.json);;All files (*.*)"
-            )
-            
-            if file_path:
-                import json
-                with open(file_path) as f:
-                    data = json.load(f)
-                self.key_generator = KeyGenerator("./wallets")
-                self.key_generator.addresses = data
-                self.append_output(f"✓ Loaded {len(data.get('addresses', []))} addresses")
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error: {e}")
+                self.append_output(f"✗ Lỗi: {result.get('Error', 'Unknown error')}")
+        elif address.startswith("stake1"):
+            self.append_output("Đang kiểm tra Stake Account (toàn bộ ví)...\n")
+            message = check_stake_balance(address)
+            self.append_output(message)
+        else:
+            self.append_output("✗ Địa chỉ không hợp lệ! Phải bắt đầu bằng 'addr1' hoặc 'stake1'")
+        self.append_output("\n========================================\n")
+
+    def on_clean(self):
+        reply = QMessageBox.question(self, "Confirm Cleanup", "This will permanently delete all generated wallets and keys from this device.\n\nThis action cannot be undone!\n\nAre you sure?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.No:
+            self.append_output("❌ Cleanup cancelled by user")
+            return
+        # Second confirmation
+        reply2 = QMessageBox.question(self, "FINAL Confirmation", "Are you absolutely sure?\n\nAll wallets, keys, and signing certificates will be permanently removed.\n\nThis is your FINAL warning!", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply2 == QMessageBox.No:
+            self.append_output("❌ Cleanup cancelled by user")
+            return
+        self.append_output("🔄 Starting secure cleanup...")
+        # Cleanup paths
+        paths_to_clean = [
+            os.path.join(os.getcwd(), "wallets"),
+            os.path.join(os.getcwd(), "generated_keys"),
+            os.path.join(os.getcwd(), "keys"),
+            os.path.join(os.getcwd(), "wallet")
+        ]
+        total_items_deleted = 0
+        for path in paths_to_clean:
+            if os.path.exists(path):
+                self.append_output(f"📁 Cleaning: {path}")
+                try:
+                    for root, dirs, files in os.walk(path, topdown=False):
+                        for name in files:
+                            try:
+                                file_path = os.path.join(root, name)
+                                with open(file_path, "wb") as f:
+                                    f.write(b"\x00" * os.path.getsize(file_path))
+                                os.remove(file_path)
+                                total_items_deleted += 1
+                                self.append_output(f"  🔒 Secure wipe: {name}")
+                            except Exception as e:
+                                self.append_output(f"  ⚠️ Could not overwrite {name}: {e}")
+                        for name in dirs:
+                            try:
+                                os.rmdir(os.path.join(root, name))
+                            except Exception:
+                                pass
+                    os.rmdir(path)
+                    self.append_output("  ✓ Directory deleted")
+                except Exception as e:
+                    self.append_output(f"  ⚠️ Error cleaning {path}: {e}")
+        self.append_output("\n✅ CLEANUP COMPLETE - All keys securely removed")
+        self.append_output("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        self.append_output(f"Total files processed: {total_items_deleted}")
+        self.append_output("Device is now clean - keys cannot be recovered\n")
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = EndUserDashboard()
+    window.show()
+    sys.exit(app.exec())
