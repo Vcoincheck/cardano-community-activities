@@ -18,9 +18,9 @@ function Start-SigningWebServer {
         [string]$Message = ""
     )
     
-    Write-Host "`n📡 Khởi động server ký..." -ForegroundColor Yellow
+    Write-Host "`n📡 Starting signing server..." -ForegroundColor Yellow
     Write-Host "Message: $Message" -ForegroundColor Cyan
-    Write-Host "Đang lắng nghe trên http://localhost:$script:WebServerPort" -ForegroundColor Cyan
+    Write-Host "Listening on http://localhost:$script:WebServerPort" -ForegroundColor Cyan
     
     # Store message in script scope
     $script:MessageToSign = $Message
@@ -31,9 +31,9 @@ function Start-SigningWebServer {
     
     try {
         $script:WebServer.Start()
-        Write-Host "✓ Server khởi động thành công" -ForegroundColor Green
+        Write-Host "✓ Server started successfully" -ForegroundColor Green
     } catch {
-        Write-Host "✗ Lỗi khởi động server: $_" -ForegroundColor Red
+        Write-Host "✗ Error starting server: $_" -ForegroundColor Red
         return $null
     }
     
@@ -45,8 +45,8 @@ function Start-SigningWebServer {
     
     # Open browser
     Start-Process "http://localhost:$script:WebServerPort"
-    Write-Host "✓ Mở trình duyệt" -ForegroundColor Green
-    Write-Host "⏳ Đang chờ chữ ký (tối đa 5 phút)..." -ForegroundColor Yellow
+    Write-Host "✓ Opening browser" -ForegroundColor Green
+    Write-Host "⏳ Waiting for signature (max 5 minutes)..." -ForegroundColor Yellow
     
     $timeout = [DateTime]::Now.AddMinutes(5)
     $script:IsSigningComplete = $false
@@ -81,14 +81,14 @@ function Start-SigningWebServer {
                         $json = ConvertFrom-Json $body
                         
                         if ($json.signature) {
-                            Write-Host "✓ Nhận được chữ ký!" -ForegroundColor Green
+                            Write-Host "✓ Signature received!" -ForegroundColor Green
                             $script:SignatureResult = $json
                             $script:IsSigningComplete = $true
                             
                             # Send success response
                             $successResponse = @{
                                 status = "success"
-                                message = "Nhận chữ ký thành công"
+                                message = "Signature received successfully"
                             } | ConvertTo-Json
                             
                             $bytes = [System.Text.Encoding]::UTF8.GetBytes($successResponse)
@@ -98,7 +98,7 @@ function Start-SigningWebServer {
                         } else {
                             $errorResponse = @{
                                 status = "error"
-                                message = "Không có chữ ký"
+                                message = "No signature provided"
                             } | ConvertTo-Json
                             
                             $bytes = [System.Text.Encoding]::UTF8.GetBytes($errorResponse)
@@ -118,7 +118,7 @@ function Start-SigningWebServer {
                 
                 # Check if signing is complete
                 if ($script:IsSigningComplete) {
-                    Write-Host "✓ Hoàn tất ký!" -ForegroundColor Green
+                    Write-Host "✓ Signing complete!" -ForegroundColor Green
                     break
                 }
                 
@@ -126,7 +126,7 @@ function Start-SigningWebServer {
                 $asyncResult = $script:WebServer.BeginGetContext($null, $null)
                 
             } catch {
-                Write-Host "⚠ Lỗi xử lý request: $_" -ForegroundColor Yellow
+                Write-Host "⚠ Error processing request: $_" -ForegroundColor Yellow
                 $asyncResult = $script:WebServer.BeginGetContext($null, $null)
             }
         }
