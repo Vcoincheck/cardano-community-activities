@@ -1,0 +1,40 @@
+{
+  "version": "1.0",
+  "description": "Cardano Signature Format Specification",
+  "formats": {
+    "ed25519_base64": {
+      "name": "Ed25519 Base64",
+      "encoding": "base64",
+      "length": 88,
+      "example": "5V8qKn5V8qKn5V8qKn5V8qKn5V8qKn5V8qKn5V8qKn5V8qKn5V8qKn5V8qKn5V8qKn5V8qKn5V8qKn=="
+    },
+    "ed25519_hex": {
+      "name": "Ed25519 Hexadecimal",
+      "encoding": "hex",
+      "length": 128,
+      "example": "e55f2a2a7e55f2a2a7e55f2a2a7e55f2a2a7e55f2a2a7e55f2a2a7e55f2a2a"
+    },
+    "cip30": {
+      "name": "CIP-30 Wallet Signature",
+      "encoding": "base64",
+      "structure": {
+        "signature": "base64 encoded 64-byte signature",
+        "key": "base64 encoded public key"
+      }
+    }
+  },
+  "properties": {
+    "ed25519": {
+      "algorithm": "Ed25519",
+      "key_size": 32,
+      "signature_size": 64,
+      "hash_algorithm": "SHA512",
+      "oid": "1.3.101.112"
+    }
+  },
+  "validation": {
+    "must_be_base64": true,
+    "must_be_64_bytes": true,
+    "must_decode_without_padding_issues": true
+  }
+}

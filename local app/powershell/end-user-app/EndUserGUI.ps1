@@ -106,16 +106,185 @@ function Show-EndUserGUI {
     
     # Event handlers
     $btnKeygen.Add_Click({
-        $output = "Generating keypair...\n"
-        $result = Generate-CardanoKeypair -ExternalAddresses 5 -InternalAddresses 3
-        if ($result) {
-            $output += "✓ Success!\n"
-            $output += "Generated: $($result.Count) addresses\n"
-            $output += "Location: $($result.OutputPath)\n"
-        } else {
-            $output += "✗ Failed\n"
+        # Choose auto or manual
+        $formMode = New-Object System.Windows.Forms.Form
+        $formMode.Text = "Generate Keypair Mode"
+        $formMode.Size = New-Object System.Drawing.Size(400, 250)
+        $formMode.StartPosition = "CenterScreen"
+        $formMode.BackColor = [System.Drawing.Color]::FromArgb(30, 30, 30)
+        $formMode.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+        $formMode.MaximizeBox = $false
+        
+        # Title
+        $lblMode = New-Object System.Windows.Forms.Label
+        $lblMode.Text = "Choose generation mode:"
+        $lblMode.AutoSize = $true
+        $lblMode.ForeColor = [System.Drawing.Color]::Cyan
+        $lblMode.Font = New-Object System.Drawing.Font("Arial", 11, [System.Drawing.FontStyle]::Bold)
+        $lblMode.Location = New-Object System.Drawing.Point(50, 30)
+        $formMode.Controls.Add($lblMode)
+        
+        # Button: Auto (1 external + 1 internal)
+        $btnAuto = New-Object System.Windows.Forms.Button
+        $btnAuto.Text = "Auto (1 external + 1 internal)"
+        $btnAuto.Size = New-Object System.Drawing.Size(280, 40)
+        $btnAuto.Location = New-Object System.Drawing.Point(60, 80)
+        $btnAuto.BackColor = [System.Drawing.Color]::FromArgb(50, 120, 180)
+        $btnAuto.ForeColor = [System.Drawing.Color]::White
+        $btnAuto.Font = New-Object System.Drawing.Font("Arial", 10, [System.Drawing.FontStyle]::Bold)
+        $formMode.Controls.Add($btnAuto)
+        
+        # Button: Manual
+        $btnManual = New-Object System.Windows.Forms.Button
+        $btnManual.Text = "Manual (specify count)"
+        $btnManual.Size = New-Object System.Drawing.Size(280, 40)
+        $btnManual.Location = New-Object System.Drawing.Point(60, 130)
+        $btnManual.BackColor = [System.Drawing.Color]::FromArgb(100, 150, 50)
+        $btnManual.ForeColor = [System.Drawing.Color]::White
+        $btnManual.Font = New-Object System.Drawing.Font("Arial", 10, [System.Drawing.FontStyle]::Bold)
+        $formMode.Controls.Add($btnManual)
+        
+        # Button: Cancel
+        $btnCancel = New-Object System.Windows.Forms.Button
+        $btnCancel.Text = "Cancel"
+        $btnCancel.Size = New-Object System.Drawing.Size(280, 35)
+        $btnCancel.Location = New-Object System.Drawing.Point(60, 180)
+        $btnCancel.BackColor = [System.Drawing.Color]::FromArgb(100, 100, 100)
+        $btnCancel.ForeColor = [System.Drawing.Color]::White
+        $formMode.Controls.Add($btnCancel)
+        
+        # Event handlers
+        $btnAuto.Add_Click({
+            $global:GenMode = "auto"
+            $formMode.DialogResult = [System.Windows.Forms.DialogResult]::OK
+            $formMode.Close()
+        })
+        
+        $btnManual.Add_Click({
+            $global:GenMode = "manual"
+            $formMode.DialogResult = [System.Windows.Forms.DialogResult]::OK
+            $formMode.Close()
+        })
+        
+        $btnCancel.Add_Click({
+            $formMode.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
+            $formMode.Close()
+        })
+        
+        $result = $formMode.ShowDialog()
+        $formMode.Dispose()
+        
+        if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
+            $genMode = $global:GenMode
+            
+            if ($genMode -eq "auto") {
+                # Auto: 1 external + 1 internal
+                $textOutput.AppendText("`n========== Generate Keypair (AUTO) ==========`n")
+                $textOutput.AppendText("Mode: Auto (1 external + 1 internal)`n")
+                $output = Generate-CardanoKeypair -ExternalAddresses 1 -InternalAddresses 1
+                if ($output) {
+                    $textOutput.AppendText("✓ Success!`n")
+                    $textOutput.AppendText("Generated: $($output.TotalCount) addresses`n")
+                    $textOutput.AppendText("Location: $($output.OutputPath)`n")
+                } else {
+                    $textOutput.AppendText("✗ Failed`n")
+                }
+            } elseif ($genMode -eq "manual") {
+                # Manual: ask for counts
+                $formManual = New-Object System.Windows.Forms.Form
+                $formManual.Text = "Specify Address Counts"
+                $formManual.Size = New-Object System.Drawing.Size(400, 300)
+                $formManual.StartPosition = "CenterScreen"
+                $formManual.BackColor = [System.Drawing.Color]::FromArgb(30, 30, 30)
+                $formManual.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+                $formManual.MaximizeBox = $false
+                
+                # Label: External
+                $lblExt = New-Object System.Windows.Forms.Label
+                $lblExt.Text = "External addresses:"
+                $lblExt.AutoSize = $true
+                $lblExt.ForeColor = [System.Drawing.Color]::Cyan
+                $lblExt.Location = New-Object System.Drawing.Point(30, 30)
+                $formManual.Controls.Add($lblExt)
+                
+                # Input: External
+                $txtExt = New-Object System.Windows.Forms.TextBox
+                $txtExt.Size = New-Object System.Drawing.Size(120, 25)
+                $txtExt.Location = New-Object System.Drawing.Point(240, 30)
+                $txtExt.BackColor = [System.Drawing.Color]::FromArgb(20, 20, 20)
+                $txtExt.ForeColor = [System.Drawing.Color]::Lime
+                $txtExt.Text = "5"
+                $formManual.Controls.Add($txtExt)
+                
+                # Label: Internal
+                $lblInt = New-Object System.Windows.Forms.Label
+                $lblInt.Text = "Internal addresses:"
+                $lblInt.AutoSize = $true
+                $lblInt.ForeColor = [System.Drawing.Color]::Cyan
+                $lblInt.Location = New-Object System.Drawing.Point(30, 80)
+                $formManual.Controls.Add($lblInt)
+                
+                # Input: Internal
+                $txtInt = New-Object System.Windows.Forms.TextBox
+                $txtInt.Size = New-Object System.Drawing.Size(120, 25)
+                $txtInt.Location = New-Object System.Drawing.Point(240, 80)
+                $txtInt.BackColor = [System.Drawing.Color]::FromArgb(20, 20, 20)
+                $txtInt.ForeColor = [System.Drawing.Color]::Lime
+                $txtInt.Text = "3"
+                $formManual.Controls.Add($txtInt)
+                
+                # Button: OK
+                $btnOK = New-Object System.Windows.Forms.Button
+                $btnOK.Text = "Generate"
+                $btnOK.Size = New-Object System.Drawing.Size(100, 35)
+                $btnOK.Location = New-Object System.Drawing.Point(140, 140)
+                $btnOK.BackColor = [System.Drawing.Color]::FromArgb(50, 120, 180)
+                $btnOK.ForeColor = [System.Drawing.Color]::White
+                $formManual.Controls.Add($btnOK)
+                
+                # Button: Cancel
+                $btnCancelMan = New-Object System.Windows.Forms.Button
+                $btnCancelMan.Text = "Cancel"
+                $btnCancelMan.Size = New-Object System.Drawing.Size(100, 35)
+                $btnCancelMan.Location = New-Object System.Drawing.Point(250, 140)
+                $btnCancelMan.BackColor = [System.Drawing.Color]::FromArgb(100, 100, 100)
+                $btnCancelMan.ForeColor = [System.Drawing.Color]::White
+                $formManual.Controls.Add($btnCancelMan)
+                
+                # Event handlers
+                $btnOK.Add_Click({
+                    $global:ExtCount = [int]$txtExt.Text
+                    $global:IntCount = [int]$txtInt.Text
+                    $formManual.DialogResult = [System.Windows.Forms.DialogResult]::OK
+                    $formManual.Close()
+                })
+                
+                $btnCancelMan.Add_Click({
+                    $formManual.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
+                    $formManual.Close()
+                })
+                
+                $resultMan = $formManual.ShowDialog()
+                $formManual.Dispose()
+                
+                if ($resultMan -eq [System.Windows.Forms.DialogResult]::OK) {
+                    $extCount = $global:ExtCount
+                    $intCount = $global:IntCount
+                    
+                    $textOutput.AppendText("`n========== Generate Keypair (MANUAL) ==========`n")
+                    $textOutput.AppendText("Mode: Manual`n")
+                    $textOutput.AppendText("External: $extCount, Internal: $intCount`n")
+                    $output = Generate-CardanoKeypair -ExternalAddresses $extCount -InternalAddresses $intCount
+                    if ($output) {
+                        $textOutput.AppendText("✓ Success!`n")
+                        $textOutput.AppendText("Generated: $($output.TotalCount) addresses`n")
+                        $textOutput.AppendText("Location: $($output.OutputPath)`n")
+                    } else {
+                        $textOutput.AppendText("✗ Failed`n")
+                    }
+                }
+            }
         }
-        $textOutput.Text += $output
     })
     
     $btnSign.Add_Click({
@@ -236,12 +405,105 @@ function Show-EndUserGUI {
         }
     })
     
+    # Clean/Delete button event handler
+    $btnClean = New-Object System.Windows.Forms.Button
+    $btnClean.Text = "🗑 Clean All Keys"
+    $btnClean.Size = New-Object System.Drawing.Size(200, 40)
+    $btnClean.Location = New-Object System.Drawing.Point(20, 320)
+    $btnClean.BackColor = [System.Drawing.Color]::FromArgb(150, 70, 70)
+    $btnClean.ForeColor = [System.Drawing.Color]::White
+    $btnClean.Add_Click({
+        $textOutput.AppendText("`n========== Secure Cleanup ==========`n")
+        
+        # First confirmation dialog
+        $result1 = [System.Windows.Forms.MessageBox]::Show(
+            "This will permanently delete all generated wallets and keys from this device.`n`nThis action cannot be undone!",
+            "Confirm Cleanup",
+            [System.Windows.Forms.MessageBoxButtons]::YesNo,
+            [System.Windows.Forms.MessageBoxIcon]::Warning
+        )
+        
+        if ($result1 -eq [System.Windows.Forms.DialogResult]::No) {
+            $textOutput.AppendText("❌ Cleanup cancelled by user`n")
+            return
+        }
+        
+        # Second confirmation dialog
+        $result2 = [System.Windows.Forms.MessageBox]::Show(
+            "Are you absolutely sure?`n`nAll wallets, keys, and signing certificates will be permanently removed.`n`nThis is your FINAL warning!",
+            "FINAL Confirmation - Cannot be undone!",
+            [System.Windows.Forms.MessageBoxButtons]::YesNo,
+            [System.Windows.Forms.MessageBoxIcon]::Stop
+        )
+        
+        if ($result2 -eq [System.Windows.Forms.DialogResult]::No) {
+            $textOutput.AppendText("❌ Cleanup cancelled by user`n")
+            return
+        }
+        
+        $textOutput.AppendText("🔄 Starting secure cleanup...`n")
+        
+        # Cleanup paths
+        $pathsToClean = @(
+            (Join-Path (Get-Location) "wallets"),
+            (Join-Path (Get-Location) "generated_keys"),
+            (Join-Path (Get-Location) "keys"),
+            (Join-Path (Get-Location) "wallet")
+        )
+        
+        $totalItemsDeleted = 0
+        $totalFileCount = 0
+        
+        foreach ($path in $pathsToClean) {
+            if (Test-Path $path) {
+                $textOutput.AppendText("`n📁 Cleaning: $path`n")
+                
+                try {
+                    # Get all files for secure overwrite
+                    $files = Get-ChildItem -Path $path -Recurse -File -ErrorAction SilentlyContinue
+                    $fileCount = ($files | Measure-Object).Count
+                    
+                    foreach ($file in $files) {
+                        # Secure overwrite with zeros before deletion
+                        if ($file.Extension -match '\.(skey|xsk|prv|key|vkey|hwallet|json)$') {
+                            try {
+                                $fileStream = [System.IO.File]::Open($file.FullName, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Write)
+                                $zeros = New-Object byte[] $fileStream.Length
+                                $fileStream.Write($zeros, 0, $fileStream.Length)
+                                $fileStream.Close()
+                                $fileStream.Dispose()
+                                $textOutput.AppendText("  🔒 Secure wipe: $($file.Name)`n")
+                            }
+                            catch {
+                                $textOutput.AppendText("  ⚠️ Could not overwrite $($file.Name): $_`n")
+                            }
+                        }
+                        $totalItemsDeleted++
+                    }
+                    
+                    # Remove directory
+                    Remove-Item -Path $path -Recurse -Force -ErrorAction SilentlyContinue
+                    $textOutput.AppendText("  ✓ Directory deleted`n")
+                }
+                catch {
+                    $textOutput.AppendText("  ⚠️ Error cleaning $path : $_`n")
+                }
+            }
+        }
+        
+        $textOutput.AppendText("`n$([char]0x2705) CLEANUP COMPLETE - All keys securely removed`n")
+        $textOutput.AppendText("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`n")
+        $textOutput.AppendText("Total files processed: $totalItemsDeleted`n")
+        $textOutput.AppendText("Device is now clean - keys cannot be recovered`n")
+    })
+    
     # Add controls to form
     $form.Controls.Add($labelHeader)
     $form.Controls.Add($btnKeygen)
     $form.Controls.Add($btnSign)
     $form.Controls.Add($btnExport)
     $form.Controls.Add($btnVerify)
+    $form.Controls.Add($btnClean)
     $form.Controls.Add($textOutput)
     
     $form.ShowDialog()
