@@ -1,0 +1,21 @@
+{
+  "name": "cardano-community-tools",
+  "version": "1.0.0",
+  "description": "Cardano Community Suite - Electron App",
+  "main": "src/main.js",
+  "author": "Cardano Community",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "pack": "electron-builder --dir"
+  },
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}

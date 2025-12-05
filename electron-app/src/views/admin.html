@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Cardano Suite</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <button class="btn-back" id="backBtn">← Back</button>
+            <h1>👨‍💼 Admin Dashboard</h1>
+            <div class="header-spacer"></div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="dashboard-layout">
+            <!-- Left Sidebar - Tools -->
+            <aside class="sidebar">
+                <nav class="tool-menu">
+                    <button class="tool-btn active" data-tool="stats">
+                        <span class="icon">📊</span>
+                        <span>Dashboard Stats</span>
+                    </button>
+                    <button class="tool-btn" data-tool="create-event">
+                        <span class="icon">➕</span>
+                        <span>Create Event</span>
+                    </button>
+                    <button class="tool-btn" data-tool="generate-challenge">
+                        <span class="icon">🎲</span>
+                        <span>Generate Challenge</span>
+                    </button>
+                    <button class="tool-btn" data-tool="verify-signatures">
+                        <span class="icon">✓</span>
+                        <span>Verify Signatures</span>
+                    </button>
+                    <button class="tool-btn" data-tool="registry">
+                        <span class="icon">📋</span>
+                        <span>User Registry</span>
+                    </button>
+                    <button class="tool-btn" data-tool="export">
+                        <span class="icon">📈</span>
+                        <span>Export Results</span>
+                    </button>
+                </nav>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="content">
+                <!-- Stats Dashboard -->
+                <section class="tool-panel" id="stats" style="display: block;">
+                    <h2>📊 Dashboard Statistics</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalUsers">0</div>
+                            <div class="stat-label">Total Users</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="verifiedUsers">0</div>
+                            <div class="stat-label">Verified</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="pendingUsers">0</div>
+                            <div class="stat-label">Pending</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalCommunities">0</div>
+                            <div class="stat-label">Communities</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="refreshStats()">Refresh Stats</button>
+                    <div id="statsOutput" class="output"></div>
+                </section>
+
+                <!-- Create Event -->
+                <section class="tool-panel" id="create-event" style="display: none;">
+                    <h2>➕ Create Event</h2>
+                    <div class="form-group">
+                        <label>Event Name</label>
+                        <input type="text" id="eventName" placeholder="Event name">
+                    </div>
+                    <div class="form-group">
+                        <label>Event Description</label>
+                        <textarea id="eventDesc" placeholder="Event description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Community ID</label>
+                        <input type="text" id="communityId" placeholder="Community ID">
+                    </div>
+                    <button class="btn btn-primary" onclick="createEvent()">Create Event</button>
+                    <div id="eventOutput" class="output"></div>
+                </section>
+
+                <!-- Generate Challenge -->
+                <section class="tool-panel" id="generate-challenge" style="display: none;">
+                    <h2>🎲 Generate Challenge</h2>
+                    <div class="form-group">
+                        <label>Number of Participants</label>
+                        <input type="number" id="participantCount" placeholder="10" min="1" max="10000">
+                    </div>
+                    <button class="btn btn-primary" onclick="generateChallenge()">Generate Challenges</button>
+                    <div id="challengeOutput" class="output"></div>
+                </section>
+
+                <!-- Verify Signatures -->
+                <section class="tool-panel" id="verify-signatures" style="display: none;">
+                    <h2>✓ Verify Signatures</h2>
+                    <div class="form-group">
+                        <label>Signature File</label>
+                        <input type="file" id="signatureFile" accept=".json,.csv">
+                    </div>
+                    <button class="btn btn-primary" onclick="verifySigs()">Verify Signatures</button>
+                    <div id="verifyOutput" class="output"></div>
+                </section>
+
+                <!-- User Registry -->
+                <section class="tool-panel" id="registry" style="display: none;">
+                    <h2>📋 User Registry</h2>
+                    <div class="form-group">
+                        <input type="text" id="searchRegistry" placeholder="Search users...">
+                    </div>
+                    <table class="registry-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Address</th>
+                                <th>Community</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="registryBody">
+                            <!-- Data populated by JS -->
+                        </tbody>
+                    </table>
+                    <div id="registryOutput" class="output"></div>
+                </section>
+
+                <!-- Export Results -->
+                <section class="tool-panel" id="export" style="display: none;">
+                    <h2>📈 Export Results</h2>
+                    <div class="form-group">
+                        <label>Export Format</label>
+                        <select id="exportFormat">
+                            <option value="json">JSON</option>
+                            <option value="csv">CSV</option>
+                            <option value="xlsx">Excel</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="exportResults()">Export</button>
+                    <div id="exportOutput" class="output"></div>
+                </section>
+            </main>
+
+            <!-- Output Panel -->
+            <aside class="output-panel">
+                <h3>Output</h3>
+                <div id="mainOutput" class="output-log"></div>
+            </aside>
+        </div>
+    </div>
+
+    <script src="../assets/js/admin.js"></script>
+</body>
+</html>

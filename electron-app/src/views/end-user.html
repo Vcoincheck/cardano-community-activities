@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>End-User Tools - Cardano Suite</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <button class="btn-back" id="backBtn">← Back</button>
+            <h1>👤 End-User Tools</h1>
+            <div class="header-spacer"></div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="dashboard-layout">
+            <!-- Left Sidebar - Tools -->
+            <aside class="sidebar">
+                <nav class="tool-menu">
+                    <button class="tool-btn active" data-tool="keygen">
+                        <span class="icon">🔑</span>
+                        <span>Generate Keypair</span>
+                    </button>
+                    <button class="tool-btn" data-tool="sign-offline">
+                        <span class="icon">✍️</span>
+                        <span>Sign (Offline)</span>
+                    </button>
+                    <button class="tool-btn" data-tool="sign-web">
+                        <span class="icon">🌐</span>
+                        <span>Sign (Web Wallet)</span>
+                    </button>
+                    <button class="tool-btn" data-tool="export">
+                        <span class="icon">💾</span>
+                        <span>Export Wallet</span>
+                    </button>
+                    <button class="tool-btn" data-tool="verify">
+                        <span class="icon">✓</span>
+                        <span>Verify Signature</span>
+                    </button>
+                    <button class="tool-btn" data-tool="balance">
+                        <span class="icon">💰</span>
+                        <span>Check Balance</span>
+                    </button>
+                    <button class="tool-btn danger" data-tool="cleanup">
+                        <span class="icon">🗑</span>
+                        <span>Clean All Keys</span>
+                    </button>
+                </nav>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="content">
+                <!-- Keygen Tool -->
+                <section class="tool-panel" id="keygen" style="display: block;">
+                    <h2>🔑 Generate/Restore Keypair</h2>
+                    <div class="form-group">
+                        <label>BIP39 Mnemonic (12/15/24 words)</label>
+                        <textarea id="mnemonicInput" placeholder="Enter your mnemonic or leave empty to generate new"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Wallet Path</label>
+                        <input type="text" id="walletPath" placeholder="Select folder to save wallet">
+                        <button class="btn btn-secondary" onclick="selectFolder()">Browse</button>
+                    </div>
+                    <button class="btn btn-primary" onclick="generateKeypair()">Generate Addresses</button>
+                    <div id="keygenOutput" class="output"></div>
+                </section>
+
+                <!-- Sign Offline Tool -->
+                <section class="tool-panel" id="sign-offline" style="display: none;">
+                    <h2>✍️ Sign Message (Offline)</h2>
+                    <div class="form-group">
+                        <label>Message to Sign</label>
+                        <textarea id="messageInput" placeholder="Enter message to sign"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Private Key (.skey file)</label>
+                        <input type="file" id="skeyFile" accept=".skey">
+                    </div>
+                    <button class="btn btn-primary" onclick="signOffline()">Sign Message</button>
+                    <div id="signOutput" class="output"></div>
+                </section>
+
+                <!-- Sign Web Tool -->
+                <section class="tool-panel" id="sign-web" style="display: none;">
+                    <h2>🌐 Sign via Web Wallet</h2>
+                    <div class="form-group">
+                        <label>Message to Sign</label>
+                        <textarea id="webMessageInput" placeholder="Enter message to sign with Yoroi/Nami"></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="signWeb()">Open Web Signer</button>
+                    <div id="webSignOutput" class="output"></div>
+                </section>
+
+                <!-- Export Tool -->
+                <section class="tool-panel" id="export" style="display: none;">
+                    <h2>💾 Export Wallet</h2>
+                    <p>Export your wallet for backup or import to another device.</p>
+                    <button class="btn btn-primary" onclick="exportWallet()">Export Wallet</button>
+                    <div id="exportOutput" class="output"></div>
+                </section>
+
+                <!-- Verify Tool -->
+                <section class="tool-panel" id="verify" style="display: none;">
+                    <h2>✓ Verify Signature</h2>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea id="verifyMessage" placeholder="Original message"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Signature</label>
+                        <textarea id="verifySignature" placeholder="Signature to verify"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Public Key</label>
+                        <input type="text" id="verifyPubKey" placeholder="Public key">
+                    </div>
+                    <button class="btn btn-primary" onclick="verifySignature()">Verify</button>
+                    <div id="verifyOutput" class="output"></div>
+                </section>
+
+                <!-- Balance Tool -->
+                <section class="tool-panel" id="balance" style="display: none;">
+                    <h2>💰 Check Balance/Assets</h2>
+                    <div class="form-group">
+                        <label>Wallet Address</label>
+                        <input type="text" id="walletAddress" placeholder="addr1... or stake1...">
+                    </div>
+                    <button class="btn btn-primary" onclick="checkBalance()">Check Balance</button>
+                    <div id="balanceOutput" class="output"></div>
+                </section>
+
+                <!-- Cleanup Tool -->
+                <section class="tool-panel" id="cleanup" style="display: none;">
+                    <h2>🗑 Clean All Keys</h2>
+                    <div class="warning">
+                        <p><strong>⚠️ Warning:</strong> This will permanently delete all generated wallets and keys.</p>
+                        <p>This action cannot be undone!</p>
+                    </div>
+                    <button class="btn btn-danger" onclick="confirmCleanup()">Clean All Keys</button>
+                    <div id="cleanupOutput" class="output"></div>
+                </section>
+            </main>
+
+            <!-- Output Panel -->
+            <aside class="output-panel">
+                <h3>Output</h3>
+                <div id="mainOutput" class="output-log"></div>
+            </aside>
+        </div>
+    </div>
+
+    <script src="../assets/js/dashboard.js"></script>
+</body>
+</html>

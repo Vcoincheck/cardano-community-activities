@@ -1,0 +1,227 @@
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 2px solid var(--border);
+}
+
+.app-header h1 {
+    font-size: 28px;
+    color: var(--primary);
+    margin: 0;
+}
+
+.header-spacer {
+    flex: 1;
+}
+
+.dashboard-layout {
+    display: grid;
+    grid-template-columns: 250px 1fr 350px;
+    flex: 1;
+    gap: 0;
+    overflow: hidden;
+}
+
+.sidebar {
+    background: rgba(0, 0, 0, 0.2);
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    overflow-y: auto;
+}
+
+.tool-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.tool-btn {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 20px;
+    background: transparent;
+    border: none;
+    border-left: 3px solid transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    text-align: left;
+    width: 100%;
+}
+
+.tool-btn:hover {
+    background: rgba(0, 212, 255, 0.1);
+    color: var(--text-light);
+}
+
+.tool-btn.active {
+    border-left-color: var(--primary);
+    background: rgba(0, 212, 255, 0.15);
+    color: var(--primary);
+}
+
+.tool-btn.danger {
+    color: var(--danger);
+}
+
+.tool-btn.danger.active {
+    border-left-color: var(--danger);
+    background: rgba(231, 76, 60, 0.15);
+    color: var(--danger);
+}
+
+.tool-btn .icon {
+    font-size: 18px;
+}
+
+.content {
+    padding: 30px;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.tool-panel {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tool-panel h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: var(--primary);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 15px;
+}
+
+.warning {
+    background: rgba(243, 156, 18, 0.15);
+    border-left: 4px solid var(--warning);
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.warning p {
+    margin: 5px 0;
+    color: var(--text-light);
+}
+
+.output-panel {
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 1px solid var(--border);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.output-panel h3 {
+    color: var(--primary);
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+#mainOutput {
+    flex: 1;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: rgba(0, 212, 255, 0.1);
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 36px;
+    font-weight: bold;
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Registry Table */
+.registry-table {
+    border-collapse: collapse;
+}
+
+.registry-table thead {
+    background: rgba(0, 212, 255, 0.15);
+}
+
+.registry-table th,
+.registry-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+}
+
+.registry-table tbody tr:hover {
+    background: rgba(0, 212, 255, 0.1);
+}
+
+/* Mobile Responsive */
+@media (max-width: 1024px) {
+    .dashboard-layout {
+        grid-template-columns: 200px 1fr;
+    }
+    
+    .output-panel {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-layout {
+        grid-template-columns: 150px 1fr;
+    }
+    
+    .tool-btn {
+        font-size: 12px;
+        padding: 12px 15px;
+    }
+    
+    .tool-btn .icon {
+        font-size: 16px;
+    }
+    
+    .app-header h1 {
+        font-size: 20px;
+    }
+}

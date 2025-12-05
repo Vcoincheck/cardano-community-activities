@@ -1,0 +1,36 @@
+# Python Requirements for Cardano Community Activities
+# Core Python version: Python 3.8+
+
+# GUI Framework (for PySide6 desktop app)
+PySide6==6.6.1
+PySide6-Addons==6.6.1
+PySide6-Essentials==6.6.1
+
+# API & Web Services
+requests==2.31.0
+fastapi==0.104.1
+uvicorn==0.24.0
+
+# Data Processing
+pandas==2.1.1
+
+# Cardano-related dependencies
+# Note: These may require additional system packages
+# cardano-addresses
+# cardano-cli
+# cardano-node
+
+# JSON & Data Handling
+# (built-in: json, csv)
+
+# Async Support
+# (built-in: asyncio)
+
+# Type Hints
+# (built-in: typing)
+
+# Other utilities
+# (built-in: uuid, base64, time, datetime, os, subprocess, re, tempfile, pathlib, webbrowser)
+
+# Development/Optional
+pytest==7.4.3  # For testing

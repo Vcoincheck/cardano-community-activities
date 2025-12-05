@@ -1,0 +1,91 @@
+.launcher-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 100vh;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+}
+
+.launcher-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.launcher-header h1 {
+    font-size: 48px;
+    margin-bottom: 10px;
+    color: var(--primary);
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+.launcher-header p {
+    font-size: 18px;
+    color: var(--text-muted);
+}
+
+.launcher-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 800px;
+    width: 100%;
+    margin-bottom: 60px;
+}
+
+@media (max-width: 768px) {
+    .launcher-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+.role-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 40px 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.role-card:hover {
+    border-color: var(--primary);
+    background: rgba(0, 212, 255, 0.1);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+}
+
+.role-card .role-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+}
+
+.role-card h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: var(--text-light);
+}
+
+.role-card p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+.role-card .btn {
+    width: 100%;
+}
+
+.launcher-footer {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.launcher-footer p {
+    margin: 5px 0;
+}

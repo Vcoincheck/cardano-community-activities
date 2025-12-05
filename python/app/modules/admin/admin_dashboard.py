@@ -8,9 +8,14 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QFont
 from PySide6.QtCore import Qt
-from ...modules.admin.challenge_generator import ChallengeGenerator
-from ...modules.admin.excel_exporter import ExcelExporter
-from ...modules.shared.on_chain_verifier import OnChainVerifier
+
+# Import from same directory (absolute for standalone)
+import sys
+import os
+sys.path.insert(0, os.path.dirname(__file__))
+
+from GenerateChallenge import generate_signing_challenge
+from VerifyOnchain import verify_onchain_stake
 
 
 class AdminDashboard(QMainWindow):
@@ -40,9 +45,6 @@ class AdminDashboard(QMainWindow):
             }
         """)
         
-        self.challenge_gen = None
-        self.excel_exporter = None
-        self.on_chain_verifier = None
         self.setup_ui()
     
     def setup_ui(self):
@@ -168,14 +170,17 @@ class AdminDashboard(QMainWindow):
             
             self.append_output(f"[*] Generating {num_participants} challenges...")
             
-            self.challenge_gen = ChallengeGenerator()
-            challenges = self.challenge_gen.generate_batch(num_participants)
-            
-            if challenges:
+            try:
+                challenges = []
+                for i in range(num_participants):
+                    challenge = generate_signing_challenge()
+                    challenges.append(challenge)
+                
                 self.append_output(f"✓ Generated {len(challenges)} challenges")
-                self.append_output(f"Sample: {challenges[0][:50]}...")
-            else:
-                self.append_output("✗ Failed to generate challenges")
+                if challenges:
+                    self.append_output(f"Sample Challenge ID: {challenges[0]['challenge_id']}")
+            except Exception as e:
+                self.append_output(f"✗ Failed to generate challenges: {e}")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error: {e}")
     
@@ -194,15 +199,28 @@ class AdminDashboard(QMainWindow):
             
             self.append_output("[*] Verifying signatures...")
             
-            self.on_chain_verifier = OnChainVerifier()
-            result = self.on_chain_verifier.verify_batch_from_file(file_path)
-            
-            if result:
+            try:
+                import json
+                with open(file_path) as f:
+                    data = json.load(f)
+                
+                valid_count = 0
+                invalid_count = 0
+                
+                # Assume data is list of stake addresses
+                if isinstance(data, list):
+                    for stake_addr in data:
+                        result = verify_onchain_stake(stake_addr)
+                        if result.get('Verified'):
+                            valid_count += 1
+                        else:
+                            invalid_count += 1
+                
                 self.append_output(f"✓ Verification complete")
-                self.append_output(f"Valid: {result.get('valid', 0)}")
-                self.append_output(f"Invalid: {result.get('invalid', 0)}")
-            else:
-                self.append_output("✗ Verification failed")
+                self.append_output(f"Valid: {valid_count}")
+                self.append_output(f"Invalid: {invalid_count}")
+            except Exception as e:
+                self.append_output(f"✗ Verification failed: {e}")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error: {e}")
     
@@ -221,16 +239,22 @@ class AdminDashboard(QMainWindow):
             
             self.append_output("[*] Exporting results...")
             
-            self.excel_exporter = ExcelExporter()
-            success = self.excel_exporter.export_verification_results(
-                {},  # Empty data for now
-                file_path
-            )
-            
-            if success:
+            try:
+                import json
+                # Create sample results
+                results = {
+                    "exported_at": __import__('datetime').datetime.now().isoformat(),
+                    "total_participants": 0,
+                    "verified": 0,
+                    "failed": 0
+                }
+                
+                with open(file_path, 'w') as f:
+                    json.dump(results, f, indent=2)
+                
                 self.append_output(f"✓ Exported to {file_path}")
-            else:
-                self.append_output("✗ Export failed")
+            except Exception as e:
+                self.append_output(f"✗ Export failed: {e}")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error: {e}")
     

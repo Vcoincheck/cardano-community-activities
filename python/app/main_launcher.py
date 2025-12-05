@@ -3,6 +3,11 @@ Main Application - PySide6 GUI Launcher
 Switch between admin and end-user modes
 """
 import sys
+import os
+
+# Add app directory to path for absolute imports
+sys.path.insert(0, os.path.dirname(__file__))
+
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QLabel, QDialog, QMessageBox, QComboBox
@@ -100,7 +105,7 @@ class MainLauncher(QMainWindow):
     def launch_admin(self):
         """Launch admin dashboard"""
         try:
-            from .modules.admin.admin_dashboard import AdminDashboard
+            from modules.admin.admin_dashboard import AdminDashboard
             self.admin_window = AdminDashboard()
             self.admin_window.show()
             self.hide()
@@ -112,7 +117,7 @@ class MainLauncher(QMainWindow):
     def launch_user(self):
         """Launch end-user dashboard"""
         try:
-            from .modules.end_user.end_user_dashboard import EndUserDashboard
+            from modules.end_user.end_user_dashboard import EndUserDashboard
             self.user_window = EndUserDashboard()
             self.user_window.show()
             self.hide()
