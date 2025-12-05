@@ -21,7 +21,7 @@
          │          │      │          │    │          │
          ▼          ▼      ▼          ▼    ▼          ▼
       ┌───────────────────────┐  ┌─────────────────────┐
-      │AddressManagement.ps1  │  │MidnightSigner*.ps1  │
+      │AddressManagement.ps1  │  │Signer*.ps1  │
       │(UI Panels)            │  │(Recovery Phrases)   │
       └───────────────────────┘  └─────────────────────┘
          ▲                               ▲
