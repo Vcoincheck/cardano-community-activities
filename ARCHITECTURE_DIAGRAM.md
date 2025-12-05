@@ -3,36 +3,38 @@
 ## Module Dependency Graph
 
 ```
-                    ┌─────────────────────┐
-                    │    Main.ps1         │
-                    │  (Orchestrator)     │
-                    └──────────┬──────────┘
-                               │
-              ┌────────────────┼────────────────┐
-              │                │                │
-              ▼                ▼                ▼
-        ┌──────────┐     ┌──────────┐    ┌──────────┐
-        │ Core.ps1 │     │GUIBuilder│    │DataLoader│
-        │(No deps) │     │(Dep:All) │    │(Dep:Core)│
-        └──────────┘     └──────────┘    └──────────┘
-              ▲                ▲                ▲
-              │                │                │
-         ┌────┴────┐      ┌────┴────┐    ┌────┴────┐
-         │          │      │          │    │          │
-         ▼          ▼      ▼          ▼    ▼          ▼
-      ┌───────────────────────┐  ┌─────────────────────┐
-      │AddressManagement.ps1  │  │Signer*.ps1  │
-      │(UI Panels)            │  │(Recovery Phrases)   │
-      └───────────────────────┘  └─────────────────────┘
-         ▲                               ▲
-         │                               │
-         └───────────┬───────────────────┘
-                     │
-                     ▼
-        ┌───────────────────────┐
-        │ExecutionEngine.ps1    │
-        │(Business Logic)       │
-        └───────────────────────┘
+                        ┌─────────────────────┐
+                        │   Application       │
+                        │   Entry Point       │
+                        └──────────┬──────────┘
+                                   │
+                  ┌────────────────┼────────────────┐
+                  │                │                │
+                  ▼                ▼                ▼
+            ┌──────────┐     ┌──────────┐    ┌──────────┐
+            │  Core    │     │  GUI     │    │  Data    │
+            │ (API,    │     │ (Forms,  │    │ (File    │
+            │ Crypto)  │     │ Panels)  │    │ Loader)  │
+            └──────────┘     └──────────┘    └──────────┘
+                  ▲                ▲                ▲
+                  │                │                │
+         ┌────────┴────────┐  ┌────┴──────┐   ┌────┴────┐
+         │                 │  │            │   │          │
+         ▼                 ▼  ▼            ▼   ▼          ▼
+    ┌───────────────────────────┐   ┌──────────────────────┐
+    │  Address Management       │   │  Recovery/Key Mgmt   │
+    │  (Panel UI Logic)         │   │  (MidnightSigner     │
+    │                           │   │   Integration)       │
+    └───────────────────────────┘   └──────────────────────┘
+         ▲                                    ▲
+         │                                    │
+         └────────────┬──────────────────────┘
+                      │
+                      ▼
+         ┌───────────────────────────┐
+         │  Execution Engine         │
+         │  (Business Logic Layer)   │
+         └───────────────────────────┘
 ```
 
 ## Function Call Flow
@@ -214,46 +216,74 @@ Shared Globals:
                     └──────────────────┘
 ```
 
-## File Organization
+## GUI Layout Structure
 
 ```
-Guitool/
-│
-├── 📄 Main.ps1 [60 lines]
-│   └─ Module loader, timer setup
-│
-├── 📁 lib/
-│   ├── Core.ps1 [180 lines]
-│   │   └─ Write-Log, Get-Statistics, Create-Signature,
-│   │      Execute-Donation, Process-Response, Save-FullLog
-│   │
-│   ├── DataLoader.ps1 [450 lines]
-│   │   └─ Scan-DelegatedFilesFast, Parse-GenerationLog,
-│   │      Show-*Dialog, Populate-PanelsFromSelected
-│   │
-│   ├── AddressManagement.ps1 [280 lines]
-│   │   └─ Add-AddressPanel, Remove-AddressPanel,
-│   │      Update-AddButtonPosition, Reset-AllAddresses
-│   │
-│   ├── ExecutionEngine.ps1 [260 lines]
-│   │   └─ Execute-SingleAddress, Execute-BatchAddresses,
-│   │      Show-ContinueDialog
-│   │
-│   ├── MidnightSignerIntegration.ps1 [380 lines]
-│   │   └─ Load-FromMidnightSigner, Invoke-Recovery*,
-│   │      Process-DelegatedSummaryAppend, Start-Watchers
-│   │
-│   └── GUIBuilder.ps1 [280 lines]
-│       └─ Build-MainForm, Show-WelcomeMessage
-│
-├── 📖 README_ARCHITECTURE.md [220 lines]
-│   └─ Complete documentation
-│
-├── 📖 REFACTORING_GUIDE.md [280 lines]
-│   └─ Maintainer guide with examples
-│
-└── 📖 QUICK_START.md [150 lines]
-    └─ Quick reference for developers
+┌─────────────────────────────────────────────────────────────────┐
+│                 Scavenger Donation Manager v4.1                 │
+├──────────────────────────────────────┬──────────────────────────┤
+│                                      │                          │
+│  LEFT PANEL (Address Management)     │   RIGHT PANEL            │
+│  ─────────────────────────────────   │   (Log Display)          │
+│                                      │                          │
+│  [ORIGINAL ADDRESSES MANAGEMENT]     │   [EXECUTION LOG]        │
+│  ┌──────────────────────────────┐   │                          │
+│  │ + Add Original Address       │   │  ┌────────────────────┐  │
+│  └──────────────────────────────┘   │  │                    │  │
+│                                      │  │   Console Output   │  │
+│  ┌──────────────────────────────┐   │  │   (Colored Text)   │  │
+│  │ ADDRESS PANEL #1             │   │  │                    │  │
+│  ├──────────────────────────────┤   │  │                    │  │
+│  │ Original Address: [____] [Check][Execute][X]  │  │                    │  │
+│  │ Private Key (.skey): [____] [...] │  │                    │  │
+│  │ Recovery: [____] [Auto][Manual]   │  │                    │  │
+│  │ Message: [Assign accumulated...] │  │                    │  │
+│  │ Solutions: Not checked           │  │  │                    │  │
+│  └──────────────────────────────┘   │  │                    │  │
+│                                      │  │                    │  │
+│  [More panels if added]              │  │                    │  │
+│                                      │  └────────────────────┘  │
+│  ┌──────────────────────────────┐   │                          │
+│  │ DESTINATION & BATCH           │   │  [Clear Log] [Reset]    │
+│  ├──────────────────────────────┤   │                          │
+│  │ Destination Address: [______] │   │                          │
+│  │                              │   │                          │
+│  │ [Execute All (Batch Mode)]   │   │                          │
+│  │          (ORANGE BIG BUTTON) │   │                          │
+│  └──────────────────────────────┘   │                          │
+│                                      │                          │
+└──────────────────────────────────────┴──────────────────────────┘
+```
+
+## Address Panel Component
+
+```
+┌─────────────────────────────────────────────────────┐
+│ #1  Original Address: [_________________] [Check]  │
+│                                      [Execute][X]   │
+│                                                     │
+│ Private Key (.skey): [___________] [...]          │
+│                                                     │
+│ Recovery: [_______________] [Auto] [Manual]       │
+│                                                     │
+│ Message: [Assign accumulated Scavenger rights to: ]│
+│                                                     │
+│ Solutions: Not checked                             │
+└─────────────────────────────────────────────────────┘
+
+Components:
+- #N: Panel number identifier
+- Original Address TextBox: Cardano address input
+- Check Button: Fetch solution count from API
+- Execute Button: Execute single address donation
+- X Button: Remove panel
+- Private Key TextBox: Path to .skey file (read-only)
+- Browse Button: File picker for private key
+- Recovery TextBox: Recovery phrase input
+- Auto Button: Auto-populate recovery phrase
+- Manual Button: Manual recovery phrase entry
+- Message TextBox: Custom message for donation
+- Solutions Label: Display current solution count
 ```
 
 ## Error Handling Flow
