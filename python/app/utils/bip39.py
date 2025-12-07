@@ -3,6 +3,8 @@ BIP39: Mnemonic & Wordlist Support
 """
 import os
 from typing import List, Optional
+import random
+import hashlib
 
 
 class BIP39:

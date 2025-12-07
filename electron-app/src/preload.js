@@ -1,9 +1,9 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  // Run Python script
-  runPythonScript: (scriptName, args = []) => 
-    ipcRenderer.invoke('run-python-script', scriptName, args),
+  // Call Python API
+  callPythonAPI: (action, params = {}) => 
+    ipcRenderer.invoke('call-python-api', action, params),
   
   // Navigation
   navigate: (page) => 
@@ -13,6 +13,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onPythonMessage: (callback) => 
     ipcRenderer.on('python-message', (event, data) => callback(data)),
   
-  sendToPython: (message, data) => 
-    ipcRenderer.send('to-python', message, data)
+  // Get Python messages
+  onPythonReady: (callback) => {
+    ipcRenderer.on('python-message', (event, data) => {
+      if (data.status === 'ready') callback();
+    });
+  }
 });
